@@ -1,20 +1,10 @@
+#define RETURNTIME 15
 #include<stdio.h>                  
 #include <stdlib.h>
-#include<string.h>     
-char branch[][15]={"Computer","IT","Electrical","Civil","Mechnnical","Architecture"};
-int  getdata();
-void mainmenu();
-void addbooks();
-void deletebooks();
-void searchbooks();
-void issuebooks();
-int  already(int);
-void issuerecord();
-void editbooks();
-void viewbooks();
-FILE *fp,*ft;
-int s;
-int flag;
+#include<string.h>
+#include<time.h>  
+//#include"mlibrary.h"   
+
 struct lastdate
 {
     int mm,dd,yy;
@@ -34,6 +24,23 @@ struct books
     struct lastdate duedate;
 };
 struct books a;
+
+int  getdata();
+void mainmenu();
+void login();
+void addbooks();
+void deletebooks();
+void searchbooks();
+void issuebooks();
+int  checkid(int);
+void issuerecord();
+void editbooks();
+void viewbooks();
+
+char branch[][15]={"Computer","IT","Electrical","Civil","Mechnnical","Architecture"};
+FILE *fp,*ft;
+int s;
+int flag;
 int main() {
 	mainmenu();
 	return 0;
@@ -48,7 +55,8 @@ void mainmenu() {
 	printf("3. View Book list\n");
 	printf("4. Edit Book's Record\n");
 	printf("5. Search Books\n");
-	printf("6. Close Application\n");
+	printf("6. Issue Books\n");
+	printf("7. Close Application\n");
 	printf("Enter your choice:\n");
 	scanf("%d",&r);
 	switch(r) {
@@ -68,7 +76,10 @@ void mainmenu() {
 		case 5:
 			searchbooks();
 			break;  
-	    	case 6: {
+		case 6:
+			issuebooks();
+			break;  
+	    	case 7: {
 			system("clear");
 			exit(0);
 	   	}
@@ -82,7 +93,7 @@ void addbooks() {
 	int y;
 	system("clear");
 	int i;
-	printf("            SELECT BRANCH\n");
+	printf("SELECT CATEGOIES\n");
 	printf("1.Computer\n");
 	printf("2.IT\n");
 	printf("3.Electrical\n");
@@ -97,7 +108,7 @@ void addbooks() {
 	}
 	
 	system("clear");
-	fp=fopen("library.dat","a");
+	fp=fopen("Library.txt","ab+");
 	if(getdata()==1)
 	{
 		a.cat=branch[s-1];
@@ -120,29 +131,30 @@ int getdata()
 {
 	int t;
 	printf("Enter the Information Below\n");
-	printf("BRANCH: ");
-	printf("%s\n",branch[s-1]);
-	printf("Book ID:\t");
+	printf("Category:");
+	printf("%s",branch[s-1]);
+	printf("\nBook ID:\t");
 	scanf("%d",&t);
-	if(already(t) == 0)
+	if(checkid(t) == 0)
 	{
-		printf("\aThe book id already exists\n\n");
+		printf("The book id checkid exists\a");
 		mainmenu();
+		
 	}
 	a.id=t;
-	printf("Book Name:");
+	printf("\nBook Name:");
 	scanf("%s",a.name);
-	printf("Author:");
+	printf("\nAuthor:");
 	scanf("%s",a.Author);
-	printf("Quantity:");
+	printf("\nQuantity:");
 	scanf("%d",&a.quantity);
-	printf("Price:");
+	printf("\nPrice:");
 	scanf("%f",&a.Price);
-	printf("Rack No:");
+	printf("\nRack No:");
 	scanf("%d",&a.rackno);
 	return 1;
 }
-int already(int t)  
+int checkid(int t)  
 {
 	rewind(fp);
 	while(fread(&a,sizeof(a),1,fp)==1)
@@ -151,6 +163,7 @@ int already(int t)
 	}
       return 1; 
 }
+
 void deletebooks() {
 	system("clear");
 	int d, y;
@@ -212,6 +225,7 @@ void viewbooks(void) {
 	printf("BRANCH     ID     BOOK NAME     AUTHOR     QTY     PRICE     RackNo \n");
 	j=4;
 	fp=fopen("library.dat","rb+");
+	//rewind(fp);
 	while(fread(&a,sizeof(a),1,fp)==1) {
 		printf("%s     ",a.cat);
 		printf("%d     ",a.id);
@@ -242,7 +256,7 @@ void editbooks() {
 		scanf("%d",&d);
 		fp=fopen("library.dat","rb+");
 		while(fread(&a,sizeof(a),1,fp)==1) {
-			if(already(d)==0) {
+			if(checkid(d)==0) {
 				printf("The book is availble\n");
 				printf("The Book ID:");scanf("%d",&a.id);
 				printf("Enter new name:");scanf("%s",a.name);
@@ -348,5 +362,190 @@ system("clear");
 		fclose(fp);
 }
 void issuebooks() {
-}
+	time_t td = time(0);   // get time now
+	struct tm * now = localtime( & td );
+	//int dd1, mm1, yy1;
+	a.issued.dd = now->tm_mday;
+	a.issued.mm = now->tm_mon;
+	a.issued.yy = now->tm_year;
+	printf("\n\n******** %d  %d  %d\n\n",a.issued.dd, a.issued.mm, a.issued.yy);
+	int t, ch, y;
+	system("clear");
+	printf("BOOK ISSUE SECTION\n");
+	printf("1. Issue a Book\n");
+    	printf("2. View Issued Book\n");
+    	printf("3. Search Issued Book\n");
+   	printf("4. Remove Issued Book\n");
+	printf("5. Retutn to mainmemu\n");
+    	printf("Enter a Choice:\n");
+	scanf("%d",&ch);
+	FILE *fs;
+	switch(ch) {
+		x1:	case 1: {
+				system("clear");
+				int c=0,y;
+				while(1) {
+					system("clear");
+					printf("	Book Issue Section\n");
+					printf("Enter the Book Id:\n");
+					scanf("%d",&t);
+					fp=fopen("library.dat","rb+");
+					fs = fopen("Issue.txt","ab+");
+					if(checkid(t)==0) {
+			     			printf("The book record is available\n");
+			     			printf("There are %d unissued books in library\n",a.quantity);
+			     			printf("The name of book is %s\n",a.name);
+			    			printf("Enter student name:\n");
+			    			scanf("%s",a.stname);
+						a.issued.dd = now->tm_mday;
+						a.issued.mm = now->tm_mon;
+						a.issued.yy = now->tm_year;
+			    	 		printf("Issued date = %d - %d - %d\n",a.issued.dd,a.issued.mm,a.issued.yy);
+			    			printf("The BOOK of ID %d is issued ",a.id);
+			    	 		a.duedate.dd=a.issued.dd+RETURNTIME; 
+			    	 		a.duedate.mm=a.issued.mm;
+			    	 		a.duedate.yy=a.issued.yy;
+			    	 		if(a.duedate.dd>30) {
+					 		a.duedate.mm += a.duedate.dd/30;
+					 		a.duedate.dd -= 30;
+			    			 }
+			    	 		if(a.duedate.mm>12) {
+							a.duedate.yy+=a.duedate.mm/12;
+							a.duedate.mm-=12;
+			    	 		}
+			    	 		printf("To be return:%d-%d-%d",a.duedate.dd,a.duedate.mm,a.duedate.yy);
+			    			fseek(fs,sizeof(a),SEEK_END);
+			    	 		fwrite(&a,sizeof(a),1,fs);
+			    	 		fclose(fs);
+			    		 	c=1;
+					}
+					if(c==0) {
+						printf("No record found\n");
+					}
+					fclose(fp);
+					printf("\nIssue any more(Y/N) press 1 for YES and 2 for NO:");
+					scanf("%d",&y);
+					if(y == 1)
+						goto x1;
+					else 
+						issuebooks();	
+				
+				}
+				break;
+			}
+			case 2:  {
+				system("clear");
+				int j = 4;
+				printf("Issued book list\n");
+				printf("STUDENT NAME    CATEGORY    ID    BOOK NAME    ISSUED DATE    RETURN DATE\n");
+			        fs=fopen("Issue.txt","rb");
+				while(fread(&a,sizeof(a),1,fs)==1) {
+					printf("%s    ",a.stname);
+					printf("%s    ",a.cat);
+					printf("%d    ",a.id);
+					printf("%s    ",a.name);
+					printf("%d-%d-%d    ",a.issued.dd,a.issued.mm,a.issued.yy );
+					printf("%d-%d-%d\n",a.duedate.dd,a.duedate.mm,a.duedate.yy);
+					j++;
+				}
+				fclose(fs);
+				printf("Press 1 to go issue books again:");
+				scanf("%d", &y);
+				if(y == 1) 
+					issuebooks();
+			}
+			break;
+		x2:	case 3: {
+				system("clear");
+				int p, c = 0;
+				printf("Enter Book ID:");
+				scanf("%d",&p);
+				while(1) {
+					
+					fs=fopen("Issue.txt","rb");
+					while(fread(&a,sizeof(a),1,fs)==1) {
+						if(a.id == p) 
+							issuerecord();
+					//issuerecord();
+						c=1;
+					}
 
+				fclose(fs);
+				if(c==0)
+				printf("No Record Found");
+				printf("Try Another Search?(Y/N) press 1 for YES and 2 for NO:");
+				scanf("%d",&y);
+				if(y == 1)
+					goto x2;
+				else 
+					issuebooks();
+				}
+			}
+			break;
+		x3:	case 4: {	
+				int y;
+				system("clear");
+				int b;
+				FILE *fg;  
+				while(1) {
+					printf("Enter book id to remove:");
+					scanf("%d",&b);
+					fs=fopen("Issue.txt","rb+");
+					while(fread(&a,sizeof(a),1,fs)==1) {
+						if(a.id==b) {
+							issuerecord();
+							flag = 10;
+						}
+						if(flag == 10) {
+							printf("Do You Want to Remove it?(Y/N) press 1 for YES and 2 for NO");
+							scanf("%d",&y);
+							if(y==1) { 
+								fg=fopen("record.txt","wb+");
+								rewind(fs);
+								while(fread(&a,sizeof(a),1,fs)==1) {
+									if(a.id!=b) {
+										fseek(fs,0,SEEK_CUR);
+										fwrite(&a,sizeof(a),1,fg);
+									}
+								}
+								fclose(fs);
+								fclose(fg);
+								remove("Issue.dat");
+								rename("record.dat","Issue.dat");
+								printf("The issued book is removed from list\n");
+								printf("Delete any more?(Y/N) press 1 fo1r YES and 2 for NO");
+								scanf("%d",&y);
+								if(y == 1)
+									goto x3;
+								else 
+									issuebooks();
+			
+							}
+						}
+						if(flag!= 10) {
+							printf("No Record Found\n");
+							printf("Press 1 to go issue books again:");
+							scanf("%d", &y);
+							if(y == 1) 
+								issuebooks();
+						}
+					}
+				
+				}
+			}
+			case 5: 
+				mainmenu();
+				break;
+			default:
+				printf("Wrong Entry!!\n");
+   				return 0;
+				issuebooks();
+				break;
+	}
+}
+void issuerecord() {
+	system("clear");
+	printf("The Book has taken by %s\n",a.stname);
+	printf("Issued Date: %d-%d-%d\n",a.issued.dd,a.issued.mm,a.issued.yy);
+	printf("Returning Date: %d-%d-%d\n",a.duedate.dd,a.duedate.mm,a.duedate.yy);
+}
