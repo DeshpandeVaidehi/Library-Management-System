@@ -1,0 +1,7 @@
+"Library Management"
+
+MIS : 141508007
+Name : Vaidehi Vasant Deshpande
+
+	Library Management project is implemented in 'C' language, have two sections. One is Student Section and another is Administaror or Librarian. In Student Section MIS ID of student get registered for use of library. User can add new student member and view it. MIS which is already registered is not acceptable.
+	Another section is Administator, in which user can add books and depend on book id, one can delete or edit details of book. Also book search can be don on the basis of book id or book name. Books can be issued to registered members and deadline of 15 days can be given. User can issue books to student. remove it, view issued books, search issued books etc. 
